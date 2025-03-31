@@ -1,17 +1,20 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { getSingleProducts } from '../../redux/features/productActions';
 
 
 const ProductsCard = ({p}) => { 
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   //more details btn
   const handleMoreBtn = (id) => {
+    dispatch(getSingleProducts(id));
     navigation.navigate('productDetails', {
       _id: id
     });
-    console.log(id);
   }
 
   //add to cart btn

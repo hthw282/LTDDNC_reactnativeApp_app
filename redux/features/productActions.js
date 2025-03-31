@@ -51,6 +51,10 @@ export const getSingleProducts = (productId) => async (dispatch) => {
             }
         });
         dispatch({ type: 'getSingleProductsSuccess', payload: data });
+        const token = await AsyncStorage.getItem("@auth");
+        if (token) {
+            dispatch(addViewedProduct(productId, token));
+        }
     } catch (error) {
         dispatch({
             type: "getSingleProductsFail",
@@ -173,3 +177,175 @@ export const deleteProduct = (productId) => async (dispatch) => {
         });
     }
 };
+
+//create review and comment
+export const addProductReview = (productId, comment, rating) => async (dispatch) => {
+    try {
+        dispatch({ type: 'addProductReviewRequest' });
+
+        const token = await AsyncStorage.getItem("@auth");
+        if (!token) throw new Error("Token not found");
+
+        const {data} = await axios.put(`${server}/product/${productId}/review`, {comment, rating}, {
+            headers: {
+                'Content-Type':'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+        dispatch({ type: 'addProductReviewSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "addProductReviewFail",
+            payload: error.response?.data?.message || "Error get all orders"
+        });
+    }
+}
+
+//add comment
+export const addComment = (productId, comment) => async (dispatch) => {
+    try {
+        dispatch({ type: 'addCommentRequest' });
+
+        const token = await AsyncStorage.getItem("@auth");
+        if (!token) throw new Error("Token not found");
+
+        const {data} = await axios.post(`${server}/product/comment`, {productId, comment}, {
+            headers: {
+                'Content-Type':'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+        dispatch({ type: 'addCommentSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "addCommentFail",
+            payload: error.response?.data?.message || "Error get all orders"
+        });
+    }
+}
+
+//get all comments by product  
+export const getCommentsByProduct = (productId) => async (dispatch) => {
+    try {
+        dispatch({ type: 'getCommentsByProductRequest' });
+
+        const { data } = await axios.get(`${server}/product/comments/${productId}`, {
+            headers: {
+                'Content-Type':'application/json',
+            }
+        });
+        dispatch({ type: 'getCommentsByProductSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "getCommentsByProductFail",
+            payload: error.response?.data?.message || "Error get all orders"
+        });
+    }
+};
+
+//delete comment
+export const deleteComment = (commentId) => async (dispatch) => {
+    try {
+        dispatch({ type: 'deleteCommentRequest' });
+
+        const token = await AsyncStorage.getItem("@auth");
+        if (!token) throw new Error("Token not found");
+
+        const { data } = await axios.delete(`${server}/product/comment/${commentId}`, {
+            headers: {
+                'Content-Type':'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+        dispatch({ type: 'deleteCommentSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "deleteCommentFail",
+            payload: error.response?.data?.message || "Error get all orders"
+        });
+    }
+};
+
+//get similar products
+export const getSimilarProducts = (productId) => async (dispatch) => {
+    try {
+        dispatch({ type: 'getSimilarProductsRequest' });
+
+        const { data } = await axios.get(`${server}/product/similar/${productId}`, {
+            headers: {
+                'Content-Type':'application/json',
+            }
+        });
+        dispatch({ type: 'getSimilarProductsSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "getSimilarProductsFail",
+            payload: error.response?.data?.message || "Error get all orders"
+        });
+    }
+};
+
+//add product to viewed
+export const addViewedProduct = (productId, token) => async (dispatch) => {
+    try {
+        dispatch({ type: 'addViewedProductRequest' });
+
+        const { data } = await axios.post(`${server}/product/${productId}/viewed`,
+            {},
+            {
+                headers: {
+                    'Content-Type':'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+            }
+        );
+        dispatch({ type: 'addViewedProductSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "addViewedProductFail",
+            payload: error.response?.data?.message || "Error save viewed product"
+        });
+    }
+};
+
+//get viewed products
+export const getViewedProducts = () => async (dispatch) => {
+    try {
+        dispatch({ type: 'getViewedProductsRequest' });
+
+        const token = await AsyncStorage.getItem("@auth");
+        if (!token) throw new Error("Token not found");
+
+        const { data } = await axios.get(`${server}/product/viewed`, {
+            headers: {
+                'Content-Type':'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+        dispatch({ type: 'getViewedProductsSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "getViewedProductsFail",
+            payload: error.response?.data?.message || "Error get all orders"
+        });
+    }
+};
+
+//GET TOTAL PURCHASES
+export const countTotalPurchasesForProduct = (productId) => async (dispatch) => {
+    try {
+        dispatch({ type: 'countTotalPurchasesForProductRequest' });
+
+        const { data } = await axios.get(`${server}/product/count-purchase/${productId}`, {
+            headers: {
+                'Content-Type':'application/json',
+            }
+        });
+        dispatch({ type: 'countTotalPurchasesForProductSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "countTotalPurchasesForProductFail",
+            payload: error.response?.data?.message || "Error get all orders"
+        });
+    }
+}

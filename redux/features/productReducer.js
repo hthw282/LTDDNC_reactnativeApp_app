@@ -116,4 +116,116 @@ export const productReducer = createReducer(initialState, (builder) => {
         state.loading = false;
         state.error = action.payload; //.error
     });   
+
+    // CREATE REVIEW
+    builder.addCase("addProductReviewRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("addProductReviewSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.reward = action.payload.reward;
+    });
+    builder.addCase("addProductReviewFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
+
+    // CREATE COMMENT
+    builder.addCase("addCommentRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("addCommentSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.comment = action.payload.data;
+    });
+    builder.addCase("addCommentFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
+
+    // GET COMMENTS BY PRODUCT
+    builder.addCase("getCommentsByProductRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("getCommentsByProductSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.totalComments = action.payload.totalComments;
+        state.comments = action.payload.comments;
+    });
+    builder.addCase("getCommentsByProductFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
+
+    // DELETE COMMENT
+    builder.addCase("deleteCommentRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("deleteCommentSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+    });
+    builder.addCase("deleteCommentFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
+
+    // GET SIMILAR PRODUCTS
+    builder.addCase("getSimilarProductsRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("getSimilarProductsSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.similarProducts = action.payload.products;
+    });
+    builder.addCase("getSimilarProductsFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
+
+    // ADD TO VIEWED PRODUCTS
+    builder.addCase("addViewedProductRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("addViewedProductSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+    });
+    builder.addCase("addViewedProductFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
+
+    // GET VIEWED PRODUCTS
+    builder.addCase("getViewedProductsRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("getViewedProductsSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.viewedProducts = action.payload.viewedProducts;
+    });
+    builder.addCase("getViewedProductsFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
+
+    //GET TOTAL PURCHASE
+    builder.addCase("countTotalPurchasesForProductRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("countTotalPurchasesForProductSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.totalPurchase = action.payload.totalPurchase;
+    });
+    builder.addCase("countTotalPurchasesForProductFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
 });
+
