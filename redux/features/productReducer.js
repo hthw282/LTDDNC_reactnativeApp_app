@@ -131,6 +131,21 @@ export const productReducer = createReducer(initialState, (builder) => {
         state.error = action.payload; //.error
     });
 
+    // GET REVIEWS
+    builder.addCase("getProductReviewsRequest", (state) => {
+        state.loading = true;
+    });
+    builder.addCase("getProductReviewsSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.totalReviews = action.payload.totalReviews;
+        state.reviews = action.payload.reviews;
+    });
+    builder.addCase("getProductReviewsFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload; //.error
+    });
+
     // CREATE COMMENT
     builder.addCase("addCommentRequest", (state) => {
         state.loading = true;
@@ -221,7 +236,7 @@ export const productReducer = createReducer(initialState, (builder) => {
     builder.addCase("countTotalPurchasesForProductSuccess", (state, action) => {
         state.loading = false;
         state.message = action.payload.message;
-        state.totalPurchase = action.payload.totalPurchase;
+        state.totalPurchases = action.payload.totalPurchases;
     });
     builder.addCase("countTotalPurchasesForProductFail", (state, action) => {
         state.loading = false;

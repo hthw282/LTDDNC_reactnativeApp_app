@@ -201,6 +201,25 @@ export const addProductReview = (productId, comment, rating) => async (dispatch)
     }
 }
 
+//get product reviews
+export const getProductReviews = (productId) => async (dispatch) => {
+    try {
+        dispatch({ type: 'getProductReviewsRequest' });
+
+        const { data } = await axios.get(`${server}/product/${productId}/reviews`, {
+            headers: {
+                'Content-Type':'application/json',
+            }
+        });
+        dispatch({ type: 'getProductReviewsSuccess', payload: data });
+    } catch (error) {
+        dispatch({
+            type: "getProductReviewsFail",
+            payload: error.response?.data?.message || "Error get all orders"
+        });
+    }
+}
+
 //add comment
 export const addComment = (productId, comment) => async (dispatch) => {
     try {

@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Toast from 'react-native-toast-message';
 import Home from './screens/Home';
 import About from './screens/About';
 import ProductDetails from './screens/ProductDetails';
@@ -22,6 +23,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import OtpVerification from './screens/auth/OtpVerification';
 import ForgotPassword from './screens/auth/ForgotPassword';
 import ResetPassword from './screens/auth/ResetPassword';
+import Dashboard from './screens/Admin/Dashboard';
+import socket from './socket/socket';
+import FinancialSummary from './screens/Account/FinancialSummary';
 
 //routes
 const Stack = createNativeStackNavigator();
@@ -44,7 +48,11 @@ export default function Main() {
           }
         };
         getUserLocalData();
-      }, []);
+        if (isAuth?._id) {
+          socket.emit("join", isAuth?._id);
+          console.log("joined socket room", isAuth?._id);
+        }
+      }, [isAuth?._id]);
       
   return (
     <>
@@ -59,8 +67,10 @@ export default function Main() {
             <Stack.Screen name="payment" component={Payment}/>
             <Stack.Screen name="account" component={Account}/>
             <Stack.Screen name="notifications" component={Notifications}/>
+            <Stack.Screen name="admin-panel" component={Dashboard}/>
             <Stack.Screen name="profile" component={Profile}/>
             <Stack.Screen name="my-orders" component={MyOrders}/>
+            <Stack.Screen name="financial-summary" component={FinancialSummary}/>
             <Stack.Screen name="productsList" component={ProductsList}/>
             <Stack.Screen name="mobile" component={About}/> 
             {!isAuth && (
@@ -74,6 +84,7 @@ export default function Main() {
             )}
         </Stack.Navigator>
         </NavigationContainer>
+        <Toast/>
     </>
   );
 }

@@ -23,8 +23,8 @@ const Login = ({navigation}) => {
             return alert('Please fill all the fields')
         }
         dispatch(login(email, password))
-        
     }
+    
 
     return (
     <View style={styles.container}>

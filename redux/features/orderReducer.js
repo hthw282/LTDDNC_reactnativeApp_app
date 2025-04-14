@@ -64,17 +64,31 @@ export const orderReducer = createReducer(initialState, (builder) => {
     //CANCEL ORDER
     builder.addCase("cancelOrderRequest", (state) => {
         state.loading = true;
-    });
-    
+    });    
     builder.addCase("cancelOrderSuccess", (state, action) => {
         state.loading = false;
         state.message = action.payload.message;
         state.orders = state.orders.map(order =>
             order._id === action.payload.orderId ? { ...order, orderStatus: "canceled" } : order
         );
+    });    
+    builder.addCase("cancelOrderFail", (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
     });
     
-    builder.addCase("cancelOrderFail", (state, action) => {
+    //GET FINANCIAL SUMMARY BY USER
+    builder.addCase("getFinancialSummaryByUserRequest", (state) => {
+        state.loading = true;
+    });    
+    builder.addCase("getFinancialSummaryByUserSuccess", (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.totalOrders = action.payload.totalOrders;
+        state.totalSpent = action.payload.totalSpent;
+        state.byStatus = action.payload.byStatus;
+    });    
+    builder.addCase("getFinancialSummaryByUserFail", (state, action) => {
         state.loading = false;
         state.error = action.payload;
     });

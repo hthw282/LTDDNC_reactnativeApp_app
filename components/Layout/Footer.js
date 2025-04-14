@@ -12,6 +12,11 @@ const Footer = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const loading = useReduxStateHook(navigation, 'login')
+
+  const handleLogout = async () => {
+    dispatch(logout())
+    navigation.navigate('login')
+  }
   return (
     <View style={styles.container}>
       {/* Home Page */}
@@ -49,10 +54,7 @@ const Footer = () => {
       {/* Logout Page */}
       <TouchableOpacity 
         style={styles.menuContainer}
-        onPress={async () => {
-          dispatch(logout())
-          await AsyncStorage.removeItem('@auth');
-        }}
+        onPress={async () => {handleLogout()}}
         >
         <AntDesign style={styles.icon} name='logout'/>
         <Text style={styles.iconText}>Logout</Text>

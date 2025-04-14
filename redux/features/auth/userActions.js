@@ -1,6 +1,8 @@
 import { server } from "../../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import socket from "../../../socket/socket";
+
 //action login
 export const login = (email, password) => async (dispatch) => {
     try {
@@ -13,10 +15,18 @@ export const login = (email, password) => async (dispatch) => {
                 "Content-Type": "application/json"
             }
         })
+
         dispatch({
             type: 'loginSuccess',
             payload: data
         })
+
+        const userId = data?.user?._id;
+        if (userId) {
+            socket.emit("join", userId); // Gửi sự kiện join đến server
+            console.log("joined socket room", userId);
+        }
+
         await AsyncStorage.setItem("@auth", data?.token);
     } catch(error) {
         dispatch({
@@ -204,9 +214,18 @@ export const logout = () => async (dispatch) => {
         dispatch({
             type: 'logoutRequest'
         })
+
+        const auth =await AsyncStorage.getItem("@auth")
+        const user = auth ? JSON.parse(auth) : null
+
+        if (user?._id) {
+            socket.emit("leave", user?._id); // Gửi sự kiện logout đến server
+            console.log("👋 Left socket room", user?._id);
+        }
         //hitting node login api request
         const {data} = await axios.get(`${server}/user/logout`, 
         )
+
         await AsyncStorage.removeItem("@auth");
 
         dispatch({

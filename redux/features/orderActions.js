@@ -116,3 +116,26 @@ export const cancelOrder = (orderId) => async (dispatch) => {
         });
     }
 };
+
+export const getFinancialSummaryByUser = (userId) => async (dispatch) => {
+    try {
+        dispatch({ type: "getFinancialSummaryByUserRequest" });
+
+        const token = await AsyncStorage.getItem("@auth");
+        if (!token) throw new Error("Token not found");
+
+        const { data } = await axios.get(`${server}/order/financial-summary/${userId}`, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        dispatch({ type: "getFinancialSummaryByUserSuccess", payload: data });
+    } catch (error) {
+        dispatch({
+            type: "getFinancialSummaryByUserFail",
+            payload: error.response?.data?.message || "Failed to get financial summary",
+        });
+    }
+}

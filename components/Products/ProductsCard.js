@@ -28,10 +28,11 @@ const ProductsCard = ({p}) => {
       <View style={styles.card}>
         <Image style={styles.cardImage}source={{ uri: p?.images?.[0]?.url }}/>
         <Text style={styles.cardTitle}>{p?.name}</Text>
-        <Text style={styles.cardDesc}>{p?.description.substring(0,30)} ...more</Text>
+        <Text style={styles.cardDesc}>
+          {p?.description ? p.description.substring(0, 30) + " ...more" : "No description available"}
+        </Text>
         <Text style={styles.cardPrice}>{p?.price.toLocaleString('vi-VN')} đ</Text>
         <Text style={styles.cardDesc}>{p?.stock} left in store</Text>
-              {/* Hiển thị đánh giá */}
         <Text style={styles.cardRating}>⭐ {p?.rating} ({p?.numReviews} reviews)</Text>
         <View style={styles.btnContainer}>
           <TouchableOpacity style={styles.btn} onPress={() => handleMoreBtn(p._id)}>

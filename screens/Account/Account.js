@@ -29,11 +29,15 @@ const Account = ({navigation}) => {
                 <AntDesign style={styles.btnText} name="bars"/>
                 <Text style={styles.btnText}>My Orders</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('financial-summary', {id: user._id})}>
+                <AntDesign style={styles.btnText} name="bars"/>
+                <Text style={styles.btnText}>Financial Summary</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('notifications')}>
                 <AntDesign style={styles.btnText} name="bells"/>
                 <Text style={styles.btnText}>Notifications</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btn}>
+            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('admin-panel')}>
                 <AntDesign style={styles.btnText} name="windows"/>
                 <Text style={styles.btnText}>Admin Panel</Text>
             </TouchableOpacity>
