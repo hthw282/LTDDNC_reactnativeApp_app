@@ -9,7 +9,7 @@ const OrderItem = ({ item }) => {
   const navigation = useNavigation();
 
   const handleOrderDetail = () => {
-    alert('Order Detail clicked');
+    navigation.navigate('order-detail', { orderId: item._id });
   };
 
   const handleCancel = async () => {

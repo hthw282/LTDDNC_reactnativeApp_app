@@ -1,19 +1,20 @@
-import { View, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import SearchBar from '../Products/SearchBar';
 
 const Header = () => {
-  const navigation = useNavigation(); // Lấy navigation từ hook
-  const [searchText, setSearchText] = useState('');
+  const navigation = useNavigation();
+  const user = useSelector((state) => state.user.user);
 
-  // Xử lý tìm kiếm
-  const handleSearch = () => {
-    if (searchText.trim() !== '') {
-      navigation.navigate('productsList', { query: searchText }); // Điều hướng với từ khóa tìm kiếm
-      setSearchText('');
-    }
+  const handleGoToNotifications = () => {
+    navigation.navigate('notifications');
+  };
+
+  const handleGoToAccount = () => {
+    navigation.navigate('account');
   };
 
   return (
@@ -23,29 +24,18 @@ const Header = () => {
         <Ionicons name="arrow-back" style={styles.icon} />
       </TouchableOpacity>
 
-      {/* Thanh tìm kiếm */}
-      <View style={styles.container}>
-        <TextInput
-          style={styles.inputBox}
-          value={searchText}
-          onChangeText={setSearchText} // Đúng cú pháp
-          placeholder="Tìm kiếm..."
-          placeholderTextColor="#666"
-        />
-        <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-          <FontAwesome name="search" style={styles.iconSearch} />
-        </TouchableOpacity>
-      </View>
+      {/* Thanh tìm kiếm  */}
+      <SearchBar />
 
       {/* Nút thông báo */}
-      <TouchableOpacity style={styles.notiButton}>
+      <TouchableOpacity style={styles.notiButton} onPress={handleGoToNotifications}>
         <Ionicons name="notifications" style={styles.icon} />
       </TouchableOpacity>
 
       {/* Avatar */}
-      <TouchableOpacity style={styles.avatarContainer}>
+      <TouchableOpacity style={styles.avatarContainer} onPress={handleGoToAccount}>
         <Image
-          source={{ uri: 'https://i.pravatar.cc/300' }} // Avatar mẫu
+          source={{ uri: user?.profilePic?.url || 'https://i.pravatar.cc/300' }}
           style={styles.avatar}
         />
       </TouchableOpacity>
@@ -61,30 +51,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     justifyContent: 'space-between',
-  },
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 10,
-  },
-  inputBox: {
-    flex: 1,
-    borderWidth: 0.3,
-    height: 40,
-    color: '#000000',
-    backgroundColor: '#ffffff',
-    paddingLeft: 10,
-    fontSize: 16,
-    borderRadius: 5,
-  },
-  searchBtn: {
-    position: 'absolute',
-    right: 10,
-  },
-  iconSearch: {
-    color: '#000000',
-    fontSize: 18,
   },
   icon: {
     color: '#000000',

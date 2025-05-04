@@ -6,18 +6,15 @@ import Banner from '../components/Banner/Banner';
 import Products from '../components/Products/Products';
 import Header from '../components/Layout/Header';
 import { useSelector, useDispatch } from 'react-redux';
-import { getUserData } from '../redux/features/auth/userActions';
 import ProductsHorizontal from '../components/Products/ProductsHorizontal';
 import { getAllProducts, getTopProducts } from '../redux/features/productActions';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { isAuth } = useSelector((state) => state.user);
   const { products, topProducts, loading, error } = useSelector((state) => state.product);
   
 
   useEffect(() => {
-    dispatch(getUserData());
     dispatch(getAllProducts());
     dispatch(getTopProducts());
   }, [dispatch]);

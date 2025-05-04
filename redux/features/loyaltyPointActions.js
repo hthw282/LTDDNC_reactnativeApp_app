@@ -1,14 +1,14 @@
 import { server } from "../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuthToken } from "../../utils/auth";
 
 //add loyalty points
 export const addLoyaltyPoints = (loyaltyData) => async (dispatch) => {
     try {
         dispatch({ type: 'addLoyaltyPointsRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.post(`${server}/loyalty/add`, loyaltyData, {
             headers: {
@@ -30,8 +30,7 @@ export const getUserPoints = (userId) => async (dispatch) => {
     try {
         dispatch({ type: 'getUserPointsRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
         
         const { data } = await axios.get(`${server}/loyalty/${userId}`, {
             headers: {

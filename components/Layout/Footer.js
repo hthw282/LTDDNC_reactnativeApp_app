@@ -3,15 +3,18 @@ import React from 'react'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useReduxStateHook } from '../../hooks/customeHook'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../redux/features/auth/userActions'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+
 
 const Footer = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const loading = useReduxStateHook(navigation, 'login')
+  const isAuth = useSelector((state) => state.user.isAuth); // Lấy trạng thái đăng nhập từ Redux
+
 
   const handleLogout = async () => {
     dispatch(logout())
@@ -27,21 +30,21 @@ const Footer = () => {
         <AntDesign style={[styles.icon, route.name === 'home' && styles.active]} name='home'/>
         <Text style={[styles.iconText, route.name === 'home' && styles.active]}>Home</Text>
       </TouchableOpacity>
-      {/* Notification Page */}
+      {/* Searching Page */}
       <TouchableOpacity 
         style={styles.menuContainer}
-        onPress={() => navigation.navigate('notifications')}
+        onPress={() => navigation.navigate('productsList')}
         >
-        <AntDesign style={[styles.icon, route.name === 'notifications' && styles.active]} name='bells'/>
-        <Text style={[styles.iconText, route.name === 'notifications' && styles.active]}>Notification</Text>
+        <FontAwesome style={[styles.icon, route.name === 'productsList' && styles.active]} name="search" />
+        <Text style={[styles.iconText, route.name === 'notifications' && styles.active]}>Search</Text>
       </TouchableOpacity>
       {/* Account Page */}
       <TouchableOpacity 
         style={styles.menuContainer}
-        onPress={() => navigation.navigate('account')}
+        onPress={() => navigation.navigate(isAuth ? 'account' : 'login')}
         >
-        <AntDesign style={[styles.icon, route.name === 'account' && styles.active]} name='user'/>
-        <Text style={[styles.iconText, route.name === 'account' && styles.active]}>Account</Text>
+        <AntDesign style={[styles.icon, (route.name === 'account' || route.name === 'login') && styles.active]} name="user" />
+        <Text style={[styles.iconText, (route.name === 'account' || route.name === 'login') && styles.active]}>{isAuth ? 'Account' : 'Login'}</Text>
       </TouchableOpacity>
       {/* Cart Page */}
       <TouchableOpacity 
@@ -50,14 +53,6 @@ const Footer = () => {
         >
         <AntDesign style={[styles.icon, route.name === 'cart' && styles.active]} name='shoppingcart'/>
         <Text style={[styles.iconText, route.name === 'cart' && styles.active]}>Cart</Text>
-      </TouchableOpacity>
-      {/* Logout Page */}
-      <TouchableOpacity 
-        style={styles.menuContainer}
-        onPress={async () => {handleLogout()}}
-        >
-        <AntDesign style={styles.icon} name='logout'/>
-        <Text style={styles.iconText}>Logout</Text>
       </TouchableOpacity>
     </View>
   )

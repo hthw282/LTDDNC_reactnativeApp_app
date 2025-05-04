@@ -1,88 +1,105 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
-  StyleSheet, View, Text, Image, Dimensions,
-  Pressable,
+    StyleSheet, View, Text, Image, Dimensions,
+    Pressable,
 } from 'react-native';
 import Carousel, { PaginationLight } from 'react-native-x-carousel';
-import { BannerData } from '../../data/BannerData';
+import { useSelector, useDispatch } from 'react-redux';
+import { getAllBanners } from '../../redux/features/bannerActions';
 
 const { width } = Dimensions.get('window');
+
 const Banner = () => {
+    const { banners, loading, error } = useSelector((state) => state.banner); // Lấy state banners từ reducer
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(getAllBanners()); // Dispatch action để lấy tất cả banners khi component mount
+    }, [dispatch]);
+
     const renderItem = (data) => (
         <View
-          key={data.coverImageUri}
-          style={styles.cardContainer}
+            key={data?.image?.url || data?._id?.toString()} // Sử dụng một key duy nhất từ dữ liệu API
+            style={styles.cardContainer}
         >
-            <Pressable onPress={() => alert(data._id)}>
+            <Pressable onPress={() => alert(data?._id)}>
                 <View
-                style={styles.cardWrapper}
-            >
-                <Image
-                style={styles.card}
-                source={{ uri: data.coverImageUri }}
-                />
-                <View
-                style={[
-                    styles.cornerLabel,
-                    { backgroundColor: data.cornerLabelColor },
-                ]}
+                    style={styles.cardWrapper}
                 >
-                <Text style={styles.cornerLabelText}>
-                    { data.cornerLabelText }
-                </Text>
+                    <Image
+                        style={styles.card}
+                        source={{ uri: data?.image?.url }} // Sử dụng URL ảnh từ API
+                    />
+                    <View
+                        style={[
+                            styles.cornerLabel,
+                            { backgroundColor: data?.connerLabelColor }, // Sử dụng màu từ API
+                        ]}
+                    >
+                        <Text style={styles.cornerLabelText}>
+                            { data?.cornerLabelText } {/* Sử dụng text từ API */}
+                        </Text>
+                    </View>
                 </View>
-            </View>
             </Pressable>
         </View>
-      );
-    
-      return (
+    );
+
+    if (loading) {
+        return <Text>Loading banners...</Text>; // Hiển thị loading state
+    }
+
+    if (error) {
+        return <Text>Error loading banners: {error}</Text>; // Hiển thị lỗi nếu có
+    }
+
+    return (
         <View style={styles.container}>
-          <Carousel
-            pagination={PaginationLight}
-            renderItem={renderItem}
-            data={BannerData}
-            loop
-            autoplay
-          />
+            <Carousel
+                pagination={PaginationLight}
+                renderItem={renderItem}
+                data={banners} // Sử dụng dữ liệu banners từ Redux state
+                loop
+                autoplay
+            />
         </View>
-      );
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     cardContainer: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      width,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width,
     },
     cardWrapper: {
-    //   borderRadius: 8,
-      overflow: 'hidden',
+    //    borderRadius: 8,
+        overflow: 'hidden',
     },
     card: {
-      width: width * 1,
-      height: width * 0.5,
+        width: width * 1,
+        height: width * 0.5,
     },
     cornerLabel: {
-      position: 'absolute',
-      bottom: 0,
-      right: 0,
-      borderTopLeftRadius: 8,
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        borderTopLeftRadius: 8,
     },
     cornerLabelText: {
-      fontSize: 12,
-      color: '#fff',
-      fontWeight: '600',
-      paddingLeft: 5,
-      paddingRight: 5,
-      paddingTop: 2,
-      paddingBottom: 2,
+        fontSize: 12,
+        color: '#fff',
+        fontWeight: '600',
+        paddingLeft: 5,
+        paddingRight: 5,
+        paddingTop: 2,
+        paddingBottom: 2,
     },
-  });
+});
 
-export default Banner
+export default Banner;

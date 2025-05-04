@@ -15,7 +15,6 @@ const MyOrders = () => {
   const [selectedStatus, setSelectedStatus] = useState('all')
 
   useEffect(() => {
-    dispatch(getUserData());
     if (selectedStatus === 'all') {
       dispatch(getAllOrders());
     } else {
@@ -62,11 +61,11 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   statusText: {
-    color: 'green',
+    color: '#3498db',
   },
   heading: {
     textAlign: 'center',
-    color: 'green',
+    color: '#3498db',
     marginTop: 10,
   },
 });

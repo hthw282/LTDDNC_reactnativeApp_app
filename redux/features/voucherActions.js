@@ -1,14 +1,14 @@
 import { server } from "../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuthToken } from "../../utils/auth";
 
 //create voucher
 export const createVoucher = (voucherData) => async (dispatch) => {
     try {
         dispatch({ type: 'createVoucherRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.post(`${server}/voucher/create`, voucherData, {
             headers: {
@@ -30,8 +30,7 @@ export const getAllVouchers = () => async (dispatch) => {
     try {
         dispatch({ type: 'getAllVouchersRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.get(`${server}/voucher/all`, {
             headers: {
@@ -53,8 +52,7 @@ export const deleteVoucher = (voucherId) => async (dispatch) => {
     try {
         dispatch({ type: 'deleteVoucherRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
         
         const { data } = await axios.delete(`${server}/voucher/delete/${voucherId}`, {
             headers: {

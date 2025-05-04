@@ -1,14 +1,14 @@
 import { server } from "../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuthToken } from "../../utils/auth";
 
 //create order action
 export const createOrder = (formData) => async (dispatch) => {
     try {
         dispatch({ type: 'createOrderRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.post(`${server}/order/create`, formData, {
             headers: {
@@ -30,8 +30,7 @@ export const getAllOrders = () => async (dispatch) => {
     try {
         dispatch({ type: 'getAllOrdersRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.get(`${server}/order/my-orders`, {
             headers: {
@@ -53,8 +52,7 @@ export const getSingleOrderDetails = (orderId) => async (dispatch) => {
     try {
         dispatch({ type: 'getSingleOrderDetailsRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.get(`${server}/order/my-orders/${orderId}`, {
             headers: {
@@ -76,8 +74,7 @@ export const getOrdersByStatus = (status) => async (dispatch) => {
     try {
         dispatch({ type: 'getOrdersByStatusRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.get(`${server}/order/status/${status}`, {
             headers: {
@@ -98,9 +95,7 @@ export const cancelOrder = (orderId) => async (dispatch) => {
     try {
         dispatch({ type: "cancelOrderRequest" });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
-
+        const token = await getAuthToken();
         const { data } = await axios.put(`${server}/order/cancel/${orderId}`, {}, {
             headers: {
                 "Content-Type": "application/json",
@@ -121,8 +116,7 @@ export const getFinancialSummaryByUser = (userId) => async (dispatch) => {
     try {
         dispatch({ type: "getFinancialSummaryByUserRequest" });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.get(`${server}/order/financial-summary/${userId}`, {
             headers: {

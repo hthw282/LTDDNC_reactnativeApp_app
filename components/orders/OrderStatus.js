@@ -36,7 +36,7 @@ const  styles = StyleSheet.create({
     marginRight: 10,
   },
   selectedStatus: {
-    backgroundColor: 'green',
+    backgroundColor: '#3498db',
   },
   statusText: {
     fontSize: 14,

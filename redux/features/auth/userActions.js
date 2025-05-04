@@ -1,40 +1,74 @@
 import { server } from "../../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import socket from "../../../socket/socket";
+import socket, { connectSocket, disconnectSocket, getSocket } from "../../../socket/socket";
+import { getAuthToken } from "../../../utils/auth";
+import { loadCartFromServer, setCart, syncCartAfterLogin } from "../cartActions";
+import { Alert } from 'react-native';
 
-//action login
-export const login = (email, password) => async (dispatch) => {
-    try {
-        dispatch({
-            type: 'loginRequest'
-        })
-        //hitting node login api request
-        const {data} = await axios.post(`${server}/user/login`, {email, password}, {
-            headers: {
-                "Content-Type": "application/json"
+// action login
+export const login = (email, password) => {
+    return async (dispatch) => {
+        try {
+            dispatch({ type: 'loginRequest' });
+
+            const { data } = await axios.post(`${server}/user/login`, { email, password }, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            await AsyncStorage.setItem("@auth", JSON.stringify({ token: data.token, user: data.user }));
+
+            dispatch({
+                type: 'loginSuccess',
+                payload: data
+            });
+
+            const userId = data?.user?._id;
+            if (userId) {
+
+                // Gọi connectSocket (nếu chưa được gọi)
+                await connectSocket();
+                const socket = getSocket();
+
+                // Lắng nghe sự kiện 'connect' và emit 'join' sau khi kết nối thành công
+                if (socket) {
+                    socket.on('connect', () => {
+                        socket.emit('join', userId);
+                        console.log("✅ Joined socket room after login:", userId);
+                    });
+
+                    // Kiểm tra trạng thái kết nối ban đầu (trong trường hợp đã kết nối trước đó)
+                    if (socket.connected) {
+                        socket.emit('join', userId);
+                        console.log("✅ Joined socket room (already connected) after login:", userId);
+                    }
+                } else {
+                    console.log("⚠️ Socket instance not found after login.");
+                }
+
+                try {
+                    await syncCartAfterLogin(userId);
+                    await dispatch(loadCartFromServer(userId));
+                } catch (error) {
+                    Alert.alert("Cart Error", "Failed to sync your cart. Please check your connection.");
+                }
+            } else {
+                console.log("login - userId not found");
             }
-        })
+            return data.user;
 
-        dispatch({
-            type: 'loginSuccess',
-            payload: data
-        })
-
-        const userId = data?.user?._id;
-        if (userId) {
-            socket.emit("join", userId); // Gửi sự kiện join đến server
-            console.log("joined socket room", userId);
+        } catch (error) {
+            console.error("login - Login failed:", error);
+            dispatch({
+                type: "loginFail",
+                payload: error.response?.data?.message || "Login Failed. Please check your credentials.",
+            });
+            Alert.alert("Login Error", error.response?.data?.message || "Login Failed. Please check your credentials.");
+            throw error;
         }
-
-        await AsyncStorage.setItem("@auth", data?.token);
-    } catch(error) {
-        dispatch({
-            type:"loginFail",
-            payload: error.response.data.message
-        })
-    }
-}
+    };
+};
 
 //register action
 export const register = (formData) => async (dispatch) => {
@@ -95,8 +129,7 @@ export const verifyOtp = (registerData, otp) => async (dispatch) => {
             email: registerData?.email, 
             otp
         };
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("No token found");
+        const token = await getAuthToken();
 
         const { data } = await axios.post(`${server}/user/verify-otp`, formData, {
             headers: { "Content-Type": "application/json",
@@ -189,8 +222,8 @@ export const getUserData = () => async (dispatch) => {
     try {
         dispatch({ type: 'getUserDataRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
+        console.log("Token being sent:", token); 
 
         const { data } = await axios.get(`${server}/user/profile`, {
             headers: {
@@ -200,6 +233,13 @@ export const getUserData = () => async (dispatch) => {
 
         dispatch({ type: 'getUserDataSuccess', payload: data?.user });
     } catch (error) {
+        if (error.response?.status === 401 && error.response?.data?.message === 'TokenExpiredError') {
+            await AsyncStorage.removeItem('@auth');
+            dispatch(logout()); // Dispatch action logout
+            // Chuyển hướng đến trang đăng nhập (bạn có thể dùng navigation ở đây nếu có)
+            // Ví dụ: navigation.navigate('login'); // Nếu bạn có thể truy cập navigation
+            alert('Your session has expired. Please log in again.'); // Thông báo cho người dùng
+        }
         dispatch({
             type: "getUserDataFail",
             payload: error.response?.data?.message || "Error fetching user data"
@@ -214,24 +254,31 @@ export const logout = () => async (dispatch) => {
         dispatch({
             type: 'logoutRequest'
         })
-
-        const auth =await AsyncStorage.getItem("@auth")
-        const user = auth ? JSON.parse(auth) : null
-
-        if (user?._id) {
-            socket.emit("leave", user?._id); // Gửi sự kiện logout đến server
-            console.log("👋 Left socket room", user?._id);
-        }
         //hitting node login api request
-        const {data} = await axios.get(`${server}/user/logout`, 
+        const {data} = await axios.get(`${server}/user/logout`, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${await getAuthToken()}` // Gửi token trong headers
+            }
+        }
         )
-
+        const authData = await AsyncStorage.getItem("@auth");
+        const { user } = JSON.parse(authData);
+        if (user?._id) {
+            const socket = getSocket();
+            if (socket && socket.connected) {
+                socket.emit("leave", user?._id); // Gửi sự kiện leave đến server nếu cần
+                console.log("👋 Left socket room", user?._id);
+            }
+        }
+        
         await AsyncStorage.removeItem("@auth");
-
         dispatch({
             type: 'logoutSuccess',
             payload: data?.message,
         })
+        disconnectSocket();
+        console.log("❌ Socket disconnected after logout");
     } catch(error) {
         dispatch({
             type:"logoutFail",
@@ -240,6 +287,9 @@ export const logout = () => async (dispatch) => {
     }
 }
 
+
+  
+  
 export const verifyOtpForUpdate = (email, otp, updatedData) => async (dispatch) => {
     try {
         dispatch({ type: "verifyOtpRequest" });
@@ -261,8 +311,7 @@ export const updateProfile = (formData) => async (dispatch, getState) => {
     try {
         dispatch({ type: "updateProfileRequest" });
 
-        const token = await AsyncStorage.getItem("@auth"); // Lấy token từ storage
-        if (!token) throw new Error("No token found");
+        const token = await getAuthToken();
 
         const { data } = await axios.put(`${server}/user/update-profile`, formData, {
             headers: {
@@ -283,8 +332,7 @@ export const updateProfilePic = (photo) => async (dispatch) => {
     try {
       dispatch({ type: "updateProfilePicRequest" });
   
-      const token = await AsyncStorage.getItem("@auth");
-      if (!token) throw new Error("No token found");
+      const token = await getAuthToken();
   
       const formData = new FormData();
       formData.append("photo", {

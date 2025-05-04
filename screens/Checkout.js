@@ -1,133 +1,190 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import Layout from '../components/Layout/Layout';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { createOrder } from '../redux/features/orderActions.js';
+import { Button, Divider } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { createOrder } from '../redux/features/orderActions';
+import { formatPrice } from '../utils/formatPrice';
 
-const Checkout = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
+const Checkout = ({ route }) => {
+    const { itemPrice, tax, shipping, total, cartItems } = route.params;
+    const user = useSelector((state) => state.user.user);
+    const dispatch = useDispatch();
+    const navigation = useNavigation();
 
-  const { itemPrice, tax, shipping, total } = route.params;
+    const handleCOD = async () => {
+        const orderData = {
+            shippingInfo: {
+                country: user?.country || "No country",
+                city: user?.city || "No city",
+                address: user?.address || "No address",
+            },
+            orderItems: cartItems.map(item => ({
+                product: item.productId,
+                quantity: item.quantity,
+                price: item.price,
+                image: item.image || "https://via.placeholder.com/150", // Fallback image
+                name: item.name || "Unknown Product",
+            })),
+            paymentMethod: "COD",
+            paymentInfo: null,
+            itemPrice,
+            tax,
+            shippingCharges: shipping,
+            totalAmount: total,
+        };
 
-  // Lấy thông tin người dùng từ Redux
-  const { user } = useSelector((state) => state.user) || {};
-  
-  const [cartItems, setCartItems] = useState([]);
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const cartData = await AsyncStorage.getItem("cart");
-        const parsedCartItems = cartData ? JSON.parse(cartData) : [];
-        setCartItems(parsedCartItems);
-      } catch (error) {
-        console.error("Error fetching cart:", error);
-      }
+        dispatch(createOrder(orderData));
+        alert('Your order has been placed successfully');
+        navigation.navigate("home");
     };
-    fetchCart();
-  }, []);
 
-  const handleCOD = async () => {
-    const orderData = {
-      shippingInfo: {
-        country: user?.country || "No country",
-        city: user?.city || "No city",
-        address: user?.address || "No address",
-      },
-      orderItems: cartItems.map(item => ({
-        product: item.productId,  // Đảm bảo có productId
-        quantity: item.quantity,  // Đảm bảo có quantity
-        price: item.price,        // Đảm bảo có price
-        image: item.image || "https://via.placeholder.com/150", // Nếu thiếu ảnh, dùng ảnh mặc định
-        name: item.name || "Unknown Product", // Nếu thiếu tên, dùng tên mặc định
-      })),
-      paymentMethod: "COD",
-      paymentInfo: null,
-      itemPrice,
-      tax,
-      shippingCharges: shipping,
-      totalAmount: total,
+    const handleOnlinePayment = () => {
+        // TODO: Implement logic for online payment (e.g., navigate to payment gateway)
+        alert('Online payment is not yet implemented.');
     };
-  
-    dispatch(createOrder(orderData));
-    await AsyncStorage.removeItem("cart"); // Xóa giỏ hàng
-    alert('Your order has been placed successfully');
-    navigation.navigate("home");
-  };
-  
 
-  const handleOnline = () => {
-    alert('You will be redirected to payment gateway');
-    navigation.navigate('payment');
-  };
+    return (
+        <ScrollView style={styles.container}>
+            <Text style={styles.heading}>Checkout</Text>
 
-  return (
-    <Layout>
-      <View style={styles.container}>
-        <Text style={styles.heading}>Payment Options</Text>
-        <Text style={styles.price}>Shipping Info: {user ? user.address || "No address" : "No user logged in"}</Text>
-        <Text style={styles.price}>Payment Method: COD</Text>
-        <Text style={styles.price}>Item Price: ${itemPrice}</Text>
-        <Text style={styles.price}>Tax: ${tax}</Text>
-        <Text style={styles.price}>Shipping Charges: ${shipping}</Text>
-        <Text style={styles.price}>Total Amount: ${total}</Text>
+            <View style={styles.userInfo}>
+                <Text style={styles.sectionTitle}>User Information</Text>
+                <Text>Name: {user?.name || 'Guest'}</Text>
+                <Text>Email: {user?.email || 'N/A'}</Text>
+                <Text>Address: {user?.address || 'Not available'}</Text>
+                <Text>City: {user?.city || 'Not available'}</Text>
+                <Text>Country: {user?.country || 'Not available'}</Text>
+            </View>
 
-        <View style={styles.paymentCard}>
-          <Text style={styles.paymentHeading}>Select your Payment Mode</Text>
-          <TouchableOpacity style={styles.paymentBtn} onPress={handleCOD}>
-            <Text style={styles.paymentBtnText}>Cash on Delivery</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.paymentBtn} onPress={handleOnline}>
-            <Text style={styles.paymentBtnText}>Online (CREDIT | DEBIT CARD)</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Layout>
-  );
+            <View style={styles.orderSummary}>
+                <Text style={styles.sectionTitle}>Your Order</Text>
+                {cartItems.map((item) => (
+                    <View key={item.productId} style={styles.cartItem}>
+                        <Text>{item.name} x {item.quantity}</Text>
+                        <Text>{formatPrice(item.price * item.quantity)}</Text>
+                    </View>
+                ))}
+                <Divider style={styles.divider} />
+                <View style={styles.priceRow}>
+                    <Text>Item Price:</Text>
+                    <Text>{formatPrice(itemPrice)}</Text>
+                </View>
+                <View style={styles.priceRow}>
+                    <Text>Tax:</Text>
+                    <Text>{formatPrice(tax)}</Text>
+                </View>
+                <View style={styles.priceRow}>
+                    <Text>Shipping Fee:</Text>
+                    <Text>{formatPrice(shipping)}</Text>
+                </View>
+                <Divider style={styles.divider} />
+                <View style={styles.totalRow}>
+                    <Text style={styles.totalText}>Total:</Text>
+                    <Text style={styles.totalPrice}>{formatPrice(total)}</Text>
+                </View>
+            </View>
+
+            <View style={styles.paymentOptions}>
+                <Text style={styles.sectionTitle}>Choose Payment Method</Text>
+                <Button
+                    mode="contained"
+                    style={styles.codButton}
+                    onPress={handleCOD}
+                >
+                    Cash on Delivery (COD)
+                </Button>
+                <Button
+                    mode="contained"
+                    style={styles.onlineButton}
+                    onPress={handleOnlinePayment}
+                >
+                    Online Payment
+                </Button>
+            </View>
+        </ScrollView>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '90%',
-  },
-  heading: {
-    fontSize: 25,
-    fontWeight: '700',
-    marginVertical: 10,
-  },
-  price: {
-    fontSize: 20,
-    marginBottom: 10,
-    color: 'gray',
-  },
-  paymentCard: {
-    backgroundColor: '#ffffff',
-    width: '90%',
-    borderRadius: 10,
-    padding: 30,
-    marginVertical: 10,
-  },
-  paymentHeading: {
-    color: 'gray',
-    marginBottom: 10,
-  },
-  paymentBtn: {
-    backgroundColor: '#000000',
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    marginVertical: 10,
-  },
-  paymentBtnText: {
-    color: '#ffffff',
-    textAlign: 'center',
-  },
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#f5f5f5',
+    },
+    heading: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginVertical: 20,
+        color: '#3498db',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 15,
+        marginBottom: 10,
+        color: '#2c3e50',
+    },
+    userInfo: {
+        backgroundColor: '#fff',
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 15,
+        elevation: 1,
+    },
+    orderSummary: {
+        backgroundColor: '#fff',
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 15,
+        elevation: 1,
+    },
+    cartItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    divider: {
+        marginVertical: 10,
+        backgroundColor: '#bdc3c7',
+    },
+    priceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 5,
+    },
+    totalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+    },
+    totalText: {
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    totalPrice: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        color: '#2ecc71',
+    },
+    paymentOptions: {
+        backgroundColor: '#fff',
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 20,
+        elevation: 1,
+    },
+    codButton: {
+        marginTop: 10,
+        borderRadius: 5,
+        backgroundColor: '#3498db',
+    },
+    onlineButton: {
+        marginTop: 10,
+        borderRadius: 5,
+        backgroundColor: '#f39c12',
+    },
 });
 
 export default Checkout;

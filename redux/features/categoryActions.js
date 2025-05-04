@@ -1,14 +1,14 @@
 import { server } from "../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuthToken } from "../../utils/auth";
 
 //create category action
 export const createCategory = (formData) => async (dispatch) => {
     try {
         dispatch({ type: 'createCategoryRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.post(`${server}/category/create`, formData, {
             headers: {
@@ -50,8 +50,7 @@ export const deleteCategory = (categoryId) => async (dispatch) => {
     try {
         dispatch({ type: 'deleteCategoryRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.delete(`${server}/category/delete/${categoryId}`, {
             headers: {
@@ -73,8 +72,7 @@ export const updateCategory = (categoryId, formData) => async (dispatch) => {
     try {
         dispatch({ type: 'updateCategoryRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.put(`${server}/category/update/${categoryId}`, formData, {
             headers: {

@@ -1,79 +1,134 @@
-import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet } from 'react-native'
-import React, {useState, useEffect} from 'react'
-import InputBox from '../../components/Form/InputBox'
-import { useNavigation } from '@react-navigation/native'
+import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, ImageBackground } from 'react-native';
+import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
+import { sendCheckOTP, saveRegisterData } from '../../redux/features/auth/userActions';
+import { useReduxStateHook } from '../../hooks/customeHook';
 
-//redux hooks
-import { useDispatch, useSelector } from 'react-redux'
-import { sendCheckOTP, saveRegisterData } from '../../redux/features/auth/userActions'
-import { useReduxStateHook } from '../../hooks/customeHook'
+const ForgotPassword = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const loading = useReduxStateHook(navigation, "resetPassword");
+    const [email, setEmail] = useState('');
 
-const ForgotPassword = ({navigation}) => {
-    const loginImage="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
-    const [email, setEmail] = useState('')
-
-    //hooks
-    const dispatch = useDispatch()
-    const loading =  useReduxStateHook(navigation, "resetPassword")
-
-    //login function
     const handleForgotPassword = () => {
-        if(!email ) {
-            return alert('Please fill all the fields')
+        if (!email) {
+            alert('Please fill in your email address.');
+            return;
         }
         const formData = { email };
-        // Lưu thông tin vào Redux trước khi gửi OTP
         dispatch(saveRegisterData(formData));
-
-        dispatch(sendCheckOTP(email))
-    }
+        dispatch(sendCheckOTP(email));
+    };
 
     return (
-    <View style={styles.container}>
-      <Image source={{uri: loginImage}} style={styles.image} />
-      <InputBox placeholder={"Enter your email"} value={email} setValue={setEmail} autoComplete={"email"}/>
-      <View style={styles.btnContainer}>
-        <TouchableOpacity style={styles.loginBtn} onPress={handleForgotPassword}>
-            <Text style={styles.loginBtnText}>Send</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  )
-}
+        <ImageBackground
+            source={require('../../assets/auth-background.png')}
+            style={styles.backgroundImage}
+        >
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Icon name="arrow-back" size={30} color="#fff" />
+            </TouchableOpacity>
+            <View style={styles.container}>
+                <Image source={require('../../assets/logo.png')} style={styles.logo} />
+                <Text style={styles.title}>Forgot Password</Text>
+                <TextInput
+                    placeholder="Enter your email"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoComplete="email"
+                    style={styles.input}
+                    placeholderTextColor="#b0bec5"
+                />
+                <View style={styles.btnContainer}>
+                    <TouchableOpacity style={styles.sendButton} onPress={handleForgotPassword} disabled={loading}>
+                        <Text style={styles.sendButtonText}>{loading ? 'Sending...' : 'Send Reset Code'}</Text>
+                    </TouchableOpacity>
+                     <TouchableOpacity style={styles.backButtonBottom} onPress={() => navigation.goBack()}>
+                        <Text style={styles.backButtonBottomText}>Go Back</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </ImageBackground>
+    );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        //alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-    },
-    image: {
-        height: 200,
-        width: '100%',
-        resizeMode: 'contain',
-    },
-    btnContainer: {
-        justifyContent: 'center',
+    backgroundImage: {
+        flex: 1,
+        resizeMode: 'cover',
+        justifyContent: 'flex-start',
         alignItems: 'center',
     },
-    loginBtn: {
-        backgroundColor: '#000000',
-        width: '80%',
-        justifyContent: 'center',
-        height: 40,
-        borderRadius: 10,
-        marginVertical: 20,
+    backButton: {
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        zIndex: 1,
     },
-    loginBtnText: {
-        color: '#ffffff',
-        textAlign: 'center',
-        fontWeight: '500',
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        width: '100%',
+    },
+    logo: {
+        height: 200,
+        width: 180,
+        resizeMode: 'contain',
+        marginBottom: 30,
+        marginTop: 50,
+    },
+    title: {
+        color: '#CC3366',
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 40,
+        marginTop: 80,
+    },
+    input: {
+        width: '90%',
+        height: 50,
+        borderRadius: 10,
+        paddingHorizontal: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        marginBottom: 16,
         fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+        color: '#333',
+    },
+    btnContainer: {
+        width: '100%',
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    sendButton: {
+        backgroundColor: '#2196f3',
+        width: '80%',
+        height: 50,
+        borderRadius: 10,
+        marginVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 3,
+    },
+    sendButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
         textTransform: 'uppercase',
     },
-    link: {
-        color: 'blue'
+    backButtonBottom: {
+        marginTop: 20,
+        alignSelf: 'center',
+    },
+    backButtonBottomText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textDecorationLine: 'underline',
     }
 });
 
-export default ForgotPassword
+export default ForgotPassword;

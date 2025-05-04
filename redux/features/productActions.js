@@ -1,6 +1,7 @@
 import { server } from "../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuthToken } from "../../utils/auth";
 
 //get all products
 export const getAllProducts = () => async (dispatch) => {
@@ -51,7 +52,7 @@ export const getSingleProducts = (productId) => async (dispatch) => {
             }
         });
         dispatch({ type: 'getSingleProductsSuccess', payload: data });
-        const token = await AsyncStorage.getItem("@auth");
+        const token = await getAuthToken();
         if (token) {
             dispatch(addViewedProduct(productId, token));
         }
@@ -68,8 +69,7 @@ export const createProduct = () => async (dispatch) => {
     try {
         dispatch({ type: 'createProductRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.post(`${server}/product/create`, {
             headers: {
@@ -91,8 +91,7 @@ export const updateProduct = (productId) => async (dispatch) => {
     try {
         dispatch({ type: 'updateProductRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.put(`${server}/product/${productId}`, {
             headers: {
@@ -114,8 +113,7 @@ export const updateProductImage = (productId) => async (dispatch) => {
     try {
         dispatch({ type: 'updateProductImageRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.put(`${server}/product/image/${productId}`, {
             headers: {
@@ -137,8 +135,7 @@ export const deleteProductImage = (productId) => async (dispatch) => {
     try {
         dispatch({ type: 'deleteProductImageRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.delete(`${server}/product/delete-image/${productId}`, {
             headers: {
@@ -160,8 +157,7 @@ export const deleteProduct = (productId) => async (dispatch) => {
     try {
         dispatch({ type: 'deleteProductRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.delete(`${server}/product/delete/${productId}`, {
             headers: {
@@ -183,8 +179,7 @@ export const addProductReview = (productId, comment, rating) => async (dispatch)
     try {
         dispatch({ type: 'addProductReviewRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const {data} = await axios.put(`${server}/product/${productId}/review`, {comment, rating}, {
             headers: {
@@ -225,8 +220,7 @@ export const addComment = (productId, comment) => async (dispatch) => {
     try {
         dispatch({ type: 'addCommentRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const {data} = await axios.post(`${server}/product/comment`, {productId, comment}, {
             headers: {
@@ -267,8 +261,7 @@ export const deleteComment = (commentId) => async (dispatch) => {
     try {
         dispatch({ type: 'deleteCommentRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.delete(`${server}/product/comment/${commentId}`, {
             headers: {
@@ -332,8 +325,7 @@ export const getViewedProducts = () => async (dispatch) => {
     try {
         dispatch({ type: 'getViewedProductsRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.get(`${server}/product/viewed`, {
             headers: {

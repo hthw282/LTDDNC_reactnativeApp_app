@@ -1,19 +1,22 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { CategoriesData } from '../../data/CategoriesData'
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import {useNavigation} from '@react-navigation/native'
-import { useDispatch, useSelector } from 'react-redux'
-import { getAllCategories } from '../../redux/features/categoryActions'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllCategories } from '../../redux/features/categoryActions';
 
 const Categories = () => {
-  const navigation = useNavigation()
-  const dispatch = useDispatch()
-  const {categories, loading} = useSelector((state) => state.category)
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { categories, loading } = useSelector((state) => state.category);
 
   useEffect(() => {
-    dispatch(getAllCategories())
-  }, [dispatch])
+    dispatch(getAllCategories());
+  }, [dispatch]);
+
+  const handleCategoryPress = (categoryName) => {
+    navigation.navigate('productsList', { category: categoryName.toLowerCase() });
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -22,27 +25,29 @@ const Categories = () => {
   return (
     <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
       <View style={styles.container}>
-        { categories?.map(item => (
+        {categories?.map((item) => (
           <View key={item._id}>
-            <TouchableOpacity  style={styles.catContainer}
-              onPress={() => navigation.navigate(item.category.toLowerCase())}>
-              <AntDesign name={item.icon} style={styles.catIcon}/>
+            <TouchableOpacity
+              style={styles.catContainer}
+              onPress={() => handleCategoryPress(item.category)}
+            >
+              <AntDesign name={item.icon} style={styles.catIcon} />
               <Text style={styles.catTitle}>{item.category}</Text>
             </TouchableOpacity>
           </View>
-        )) }
+        ))}
       </View>
     </ScrollView>
-  )
-}
+  );
+};
 
-const  styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
     padding: 5,
     flexDirection: 'row',
   },
-  catContainer:{
+  catContainer: {
     padding: 15,
     justifyContent: 'center',
     alignItems: 'center',
@@ -53,7 +58,7 @@ const  styles = StyleSheet.create({
   },
   catTitle: {
     fontSize: 12,
-  }
-})
+  },
+});
 
-export default Categories
+export default Categories;

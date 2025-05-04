@@ -8,6 +8,7 @@ import { voucherReducer } from "./features/voucherReducer";
 import { loyaltyReducer } from "./features/loyaltyPointReducer";
 import { favoriteReducer } from "./features/favoriteReducer";
 import { notificationReducer } from "./features/notificationReducer";
+import { bannerReducer } from "./features/bannerReducer";
 export default configureStore({
   reducer: {
     user: userReducer,
@@ -19,9 +20,10 @@ export default configureStore({
     loyalty: loyaltyReducer,
     favorite: favoriteReducer,
     notification: notificationReducer,
+    banner: bannerReducer,
   },
 });
 
 //HOST
-export const server = "http://172.172.13.2:8080/api/v1";
+export const server = "http://192.168.0.108:8080/api/v1";
 

@@ -17,24 +17,24 @@ const FinancialSummary = ({ route }) => {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.title}>Tổng quan tài chính</Text>
+            <Text style={styles.title}>Financial Overview</Text>
 
             <View style={styles.box}>
-                <Text style={styles.label}>Tổng số đơn hàng:</Text>
-                <Text style={styles.value}>{totalOrders || "Đang tải..."}</Text>
+                <Text style={styles.label}>Total orders:</Text>
+                <Text style={styles.value}>{totalOrders || "Loading..."}</Text>
             </View>
 
             <View style={styles.box}>
-                <Text style={styles.label}>Tổng số tiền đã chi:</Text>
+                <Text style={styles.label}>Total amount spent:</Text>
                 <Text style={styles.value}>{totalSpent?.toLocaleString()} ₫</Text>
             </View>
 
-            <Text style={styles.subTitle}>Thống kê theo trạng thái:</Text>
+            <Text style={styles.subTitle}>Statistics by status:</Text>
             {byStatus && Object.entries(byStatus).map(([status, data]) => (
               <View key={status} style={styles.statusBox}>
                 <Text style={styles.statusTitle}>{status.toUpperCase()}</Text>
-                <Text>Số đơn: {data.count}</Text>
-                <Text>Tổng tiền: {data.totalAmount?.toLocaleString()} ₫</Text>
+                <Text>Num of orders: {data.count}</Text>
+                <Text>Total: {data.totalAmount?.toLocaleString()} VNĐ</Text>
               </View>
             ))}
         </ScrollView>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
       fontSize: 22,
       fontWeight: "bold",
       marginBottom: 20,
-      color: "#00a86b",
+      color: "#3498db",
     },
     subTitle: {
       fontSize: 18,
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
       marginTop: 5,
     },
     statusBox: {
-      backgroundColor: "#e6f5ea",
+      backgroundColor: "#CCFFFF",
       padding: 15,
       marginBottom: 10,
       borderRadius: 10,
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     statusTitle: {
       fontWeight: "bold",
       marginBottom: 5,
-      color: "#007e4f",
+      color: "#3498db",
     },
   });
 

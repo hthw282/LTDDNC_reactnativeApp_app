@@ -1,13 +1,13 @@
 import { server } from "../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuthToken } from "../../utils/auth";
 
 export const addToFavorite = (productId) => async (dispatch) => {
     try {
         dispatch({ type: 'addToFavoriteRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.post(`${server}/favorites/add`, { productId }, {
             headers: {
@@ -29,8 +29,7 @@ export const removeFromFavorite = (productId) => async (dispatch) => {
     try {
         dispatch({ type: 'removeFromFavoriteRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.delete(`${server}/favorites/delete/${productId}`, {
             headers: {
@@ -52,8 +51,7 @@ export const getUserFavorites = () => async (dispatch) => {
     try {
         dispatch({ type: 'getUserFavoritesRequest' });
 
-        const token = await AsyncStorage.getItem("@auth");
-        if (!token) throw new Error("Token not found");
+        const token = await getAuthToken();
 
         const { data } = await axios.get(`${server}/favorites/user-favorites`, {
             headers: {

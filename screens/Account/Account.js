@@ -1,92 +1,181 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
-import Layout from '../../components/Layout/Layout'
-import { userData } from '../../data/userData'
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import { useNavigation } from '@react-navigation/native'
-import { useSelector } from 'react-redux'
+import React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { logout } from '../../redux/features/auth/userActions';
+import Layout from '../../components/Layout/Layout';
+import Header from '../../components/Layout/Header';
+import Footer from '../../components/Layout/Footer';
 
-const Account = ({navigation}) => {
-    const {user} = useSelector((state) => state.user)
+const Account = () => {
+    const { user } = useSelector((state) => state.user);
+    const navigation = useNavigation();
+    const dispatch = useDispatch();
+
+    const handleLogout = async () => {
+        try {
+            await dispatch(logout());
+            Alert.alert("Logout", "You have been successfully logged out.", [
+                {
+                    text: "OK",
+                    onPress: () => {
+                        navigation.replace("home");
+                    },
+                },
+            ]);
+            console.log("Logout successful");
+        } catch (error) {
+            console.error("Logout failed:", error);
+            Alert.alert("Logout Error", "Something went wrong during logout.");
+        }
+    };
+
     return (
-    <Layout>
-      <View style={styles.container}>
-        <Image source={{uri:user.profilePic?.url}} style={styles.image}/>
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
-          <Text style={styles.name}>Hi {' '}
-            <Text style={{color: 'green'}}>{user ? user.name: 'User '}</Text>
-             👋</Text>
-          <Text>Email: {user ? user.email : 'N/A'}</Text>
-          <Text>Contact Number: {user ? user.phone : 'N/A'}</Text>
-        </View>
-        <View style={styles.btnContainer}>
-            <Text style={styles.heading}>Account Setting</Text>
-            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('profile', {id: user._id})}>
-                <AntDesign style={styles.btnText} name="edit"/>
-                <Text style={styles.btnText}>Edit Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('my-orders', {id: user._id})}>
-                <AntDesign style={styles.btnText} name="bars"/>
-                <Text style={styles.btnText}>My Orders</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('financial-summary', {id: user._id})}>
-                <AntDesign style={styles.btnText} name="bars"/>
-                <Text style={styles.btnText}>Financial Summary</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('notifications')}>
-                <AntDesign style={styles.btnText} name="bells"/>
-                <Text style={styles.btnText}>Notifications</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('admin-panel')}>
-                <AntDesign style={styles.btnText} name="windows"/>
-                <Text style={styles.btnText}>Admin Panel</Text>
-            </TouchableOpacity>
-        </View>
-      </View>
-    </Layout>
-  )
-}
+        <Layout>
+            <Header /> {/* Thêm Header nếu bạn muốn */}
+            <ScrollView showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 15 }}>
+                {/* Nội dung hiện tại của trang Account */}
+                <View style={styles.headerContainer}>
+                    <Image
+                        source={{ uri: user?.profilePic?.url || 'https://via.placeholder.com/100' }}
+                        style={styles.image}
+                        resizeMode="contain"
+                    />
+                    <View style={styles.userInfoContainer}>
+                        <Text style={styles.name}>
+                            Hi <Text style={styles.highlightedName}>{user ? user.name : 'User'}</Text> 👋
+                        </Text>
+                        <Text style={styles.email}>Email: {user ? user.email : 'N/A'}</Text>
+                        <Text style={styles.contact}>Contact: {user ? user.phone : 'N/A'}</Text>
+                    </View>
+                </View>
+    
+                <View style={styles.sectionContainer}>
+                    <Text style={styles.heading}>Account Settings</Text>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('profile', { id: user?._id })}>
+                        <AntDesign name="edit" size={20} color="#3498db" style={styles.icon} />
+                        <Text style={styles.buttonText}>Edit Profile</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('my-orders', { id: user?._id })}>
+                        <AntDesign name="bars" size={20} color="#3498db" style={styles.icon} />
+                        <Text style={styles.buttonText}>My Orders</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('financial-summary', { id: user?._id })}>
+                        <AntDesign name="bars" size={20} color="#3498db" style={styles.icon} />
+                        <Text style={styles.buttonText}>Financial Summary</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('notifications')}>
+                        <AntDesign name="bars" size={20} color="#3498db" style={styles.icon} />
+                        <Text style={styles.buttonText}>Notifications</Text>
+                    </TouchableOpacity>
+                    {user?.role === 'admin' && (
+                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('admin-panel')}>
+                            <AntDesign name="laptop" size={20} color="#3498db" style={styles.icon} />
+                            <Text style={styles.buttonText}>Admin Panel</Text>
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                        <AntDesign name="logout" size={20} color="#fff" style={styles.icon} />
+                        <Text style={styles.logoutButtonText}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </Layout>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 20,
+        flex: 1,
+        backgroundColor: '#f9f9f9',
+        padding: 20,
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 30,
+        marginTop: 20,
     },
     image: {
+        width: 100,
         height: 100,
-        width: "100%",
-        resizeMode: 'contain',
+        borderRadius: 50,
+        marginRight: 20,
+        borderColor: '#e0e0e0',
+        borderWidth: 2,
+    },
+    userInfoContainer: {
+        flex: 1,
     },
     name: {
-        marginTop: 10,
-        fontSize: 20,
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+        marginBottom: 8,
     },
-    btnContainer: {
-        padding: 10,
+    highlightedName: {
+        color: '#3498db',
+    },
+    email: {
+        fontSize: 16,
+        color: '#7f8c8d',
+        marginBottom: 4,
+    },
+    contact: {
+        fontSize: 16,
+        color: '#7f8c8d',
+    },
+    sectionContainer: {
         backgroundColor: '#ffffff',
-        margin: 10,
-        marginVertical: 20,
-        elevation: 5,
+        padding: 20,
         borderRadius: 10,
-        paddingBottom: 30,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 3,
     },
     heading: {
-        fontSize: 20,
-        textAlign: 'center',
-        paddingBottom: 10,
+        fontSize: 22,
         fontWeight: 'bold',
+        color: '#2c3e50',
+        marginBottom: 25,
         borderBottomWidth: 1,
-        borderColor: 'lightgray',
+        borderColor: '#e0e0e0',
+        paddingBottom: 15,
     },
-    btn:{
+    button: {
         flexDirection: 'row',
-        alignContent: 'center',
-        marginVertical: 10,
-        padding: 5,
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderRadius: 8,
+        marginBottom: 15,
+        backgroundColor: '#f0f0f0',
     },
-    btnText:{
-        fontSize: 15,
-        marginRight: 10,
-    }
-})
+    icon: {
+        marginRight: 15,
+        marginStart: 20,
+        color: '#3498db',
+    },
+    buttonText: {
+        fontSize: 18,
+        color: '#2c3e50',
+    },
+    logoutButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderRadius: 8,
+        backgroundColor: '#e74c3c',
+        marginTop: 20,
+    },
+    logoutButtonText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+        fontSize: 18,
+    },
+});
 
-export default Account
+export default Account;
