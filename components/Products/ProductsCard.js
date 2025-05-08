@@ -15,6 +15,7 @@ const ProductsCard = ({p}) => {
     navigation.navigate('productDetails', {
       _id: id
     });
+
   }
 
   //add to cart btn

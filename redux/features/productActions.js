@@ -2,25 +2,49 @@ import { server } from "../store";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuthToken } from "../../utils/auth";
+import { createAction } from "@reduxjs/toolkit";
 
 //get all products
-export const getAllProducts = () => async (dispatch) => {
+// productActions.js
+export const getAllProducts = (sort, priceRange, page = 1, limit = 2, search = '', category = '') => async (dispatch) => { // Thêm tham số category
     try {
-        dispatch({ type: 'getAllProductsRequest' });
-
-        const { data } = await axios.get(`${server}/product/get-all`, {
-            headers: {
-                'Content-Type':'application/json',
-            }
-        });
-        dispatch({ type: 'getAllProductsSuccess', payload: data });
+      dispatch({ type: 'getAllProductsRequest' });
+  
+      let url = `${server}/product/get-all?page=${page}&limit=${limit}`;
+      const queryParams = [];
+  
+      if (sort) {
+        queryParams.push(`sort=${sort}`);
+      }
+      if (priceRange) {
+        queryParams.push(`priceRange=${priceRange}`);
+      }
+      if (search) {
+        queryParams.push(`search=${search}`);
+      }
+      if (category) { // Thêm category vào query params
+        queryParams.push(`category=${category}`);
+      }
+  
+      if (queryParams.length > 0) {
+        url += `&${queryParams.join('&')}`;
+      }
+  
+      const { data } = await axios.get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      dispatch({ type: 'getAllProductsSuccess', payload: data });
     } catch (error) {
-        dispatch({
-            type: "getAllProductsFail",
-            payload: error.response?.data?.message || "Error get all orders"
-        });
+      dispatch({
+        type: "getAllProductsFail",
+        payload: error.response?.data?.message || "Error get all products"
+      });
     }
-};
+  };
+
+export const setCurrentPage = createAction('setCurrentPage');
 
 //get top products
 export const getTopProducts = () => async (dispatch) => {

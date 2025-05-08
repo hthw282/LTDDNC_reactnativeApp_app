@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ENDPOINT = 'http://192.168.0.108:8080'; 
+const ENDPOINT = 'http://172.172.21.193:8080'; 
 let socket = null;
 
 export const connectSocket = async () => {

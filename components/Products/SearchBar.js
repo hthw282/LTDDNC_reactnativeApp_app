@@ -1,18 +1,39 @@
-// SearchBar.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { getAllProducts } from '../../redux/features/productActions';
 
 const SearchBar = () => {
   const navigation = useNavigation();
   const [searchText, setSearchText] = useState('');
+  const dispatch = useDispatch();
+  const searchTimeout = useRef(null);
 
-  const handleSearch = () => {
-    if (searchText.trim() !== '') {
-      navigation.navigate('productsList', { query: searchText });
-      setSearchText('');
-    }
+  useEffect(() => {
+    return () => {
+      clearTimeout(searchTimeout.current);
+    };
+  }, []);
+
+  const handleSearch = (text) => {
+    setSearchText(text); // Cập nhật state searchText
+
+    clearTimeout(searchTimeout.current); // Xóa timeout trước đó
+
+    // Chỉ tìm kiếm sau khi người dùng ngừng nhập liệu một khoảng thời gian
+    searchTimeout.current = setTimeout(() => {
+      if (text.trim() !== '') {
+        // Dispatch getAllProducts với từ khóa tìm kiếm
+        dispatch(getAllProducts('', '', 1, 10, text));
+        navigation.navigate('productsList', { query: text });
+      } else {
+        // Nếu không có từ khóa, hiển thị tất cả sản phẩm
+        dispatch(getAllProducts('', '', 1, 10, ''));
+        navigation.navigate('productsList', { query: '' });
+      }
+    }, 300); // Đợi 300ms sau khi người dùng ngừng nhập
   };
 
   return (
@@ -20,11 +41,11 @@ const SearchBar = () => {
       <TextInput
         style={styles.inputBox}
         value={searchText}
-        onChangeText={setSearchText}
+        onChangeText={handleSearch} // Gọi handleSearch khi text thay đổi
         placeholder="Searching..."
         placeholderTextColor="#666"
       />
-      <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
+      <TouchableOpacity style={styles.searchBtn} onPress={() => handleSearch(searchText)}>
         <FontAwesome name="search" style={styles.iconSearch} />
       </TouchableOpacity>
     </View>

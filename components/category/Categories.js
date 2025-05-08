@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from '../../redux/features/categoryActions';
+import { getAllProducts } from '../../redux/features/productActions';
 
 const Categories = () => {
   const navigation = useNavigation();
@@ -14,8 +15,15 @@ const Categories = () => {
     dispatch(getAllCategories());
   }, [dispatch]);
 
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   const handleCategoryPress = (categoryName) => {
-    navigation.navigate('productsList', { category: categoryName.toLowerCase() });
+    const capitalizedCategoryName = capitalizeFirstLetter(categoryName);
+    dispatch(getAllProducts('', '', 1, 10, '', capitalizedCategoryName));
+    dispatch({ type: 'setSearchQuery', payload: '' });
+    navigation.navigate('productsList', { category: capitalizedCategoryName });
   };
 
   if (loading) {

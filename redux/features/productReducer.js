@@ -5,7 +5,15 @@ const initialState = {
     products: [],
     topProducts: [],
     error: null,
-    loading: false
+    loading: false,
+    error: null,
+    message: '',
+    totalProducts: 0,
+    currentPage: 1,
+    totalPages: 1, // Thêm totalPages vào state
+    productsPerPage: 2,
+    searchQuery: '', // Thêm searchQuery vào state
+
   };
 
 export const productReducer = createReducer(initialState, (builder) => {
@@ -18,11 +26,20 @@ export const productReducer = createReducer(initialState, (builder) => {
         state.message = action.payload.message;
         state.totalProducts = action.payload.totalProducts;
         state.products = action.payload.products;
+        state.error = null;
+        state.currentPage = action.payload.currentPage; // Lưu trang hiện tại
+        state.totalPages = action.payload.totalPages;     // Lưu tổng số trang
     });
     builder.addCase("getAllProductsFail", (state, action) => {
         state.loading = false;
-        state.error = action.payload; //.data.message
+        state.error = action.payload;
     });
+    builder.addCase("setCurrentPage", (state, action) => {
+        state.currentPage = action.payload;
+    });
+    builder.addCase("setSearchQuery", (state, action) => { // Thêm case cho setSearchQuery
+        state.searchQuery = action.payload;
+      });
 
     // GET TOP PRODUCTS
     builder.addCase("getTopProductsRequest", (state) => {

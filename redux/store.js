@@ -25,5 +25,6 @@ export default configureStore({
 });
 
 //HOST
-export const server = "http://192.168.0.108:8080/api/v1";
+export const server = "http://172.172.21.193:8080/api/v1";
+
 
